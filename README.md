@@ -220,12 +220,27 @@ addr3      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
 ```
 
 
+
 ```python
 pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0, addr1="DEST-ADDR", addr2="OWN-ADDR", addr3="THE-BSSID")/Dot11Elt(ID="SSID", info="test")/Dot11Elt(ID="Supported Rates", info="???")/Dot11Elt() #etc...
 ```
+
+- find out how to 4 way handshake own AP
+- try to authenticate to own AP
+- try to associate to own AP
+- try to deauthenticate to own AP (will be useful to deauth another user and listen the four-way handshake)
+
+From there we can use beacons (BLACKLIST INSTITUTIONAL AND GOV APs)  
+Any way to target mobile hotspot only ?
+
+- find out how to scan nearby AP using beacons
+- find connected hosts to the IP by sniffing
+- deauth one of the client
+- listen to the four-way handshake
+- crack the key using dictionnaries and/or bruteforce
+
+
 ---
-
-
 
 this can be useful in scapy interpreter
 ```text
