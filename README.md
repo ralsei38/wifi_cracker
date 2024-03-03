@@ -201,14 +201,38 @@ _dot11_elt_deprecated_names = {
     "Vendor": 221,
 }
 ```
+
 ```python
 # self.rates = "\x03\x12\x96\x18\x24\x30\x48\x60"  pasted
 pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0)/Dot11Elt(ID="SSID", info="test")/Dot11Elt(ID="Supported Rates", info="???")/Dot11Elt() #etc...
 ```
 
+Here it is not clear which address is which (client, AP, a 3rd addr ??)
+looked up "802.11 field", apparently the order is the following:
+
+- addr1 => DA
+- addr2 => SA
+- addr3 => BSS ID (!= SSID, BSSID is an ADDR calculated using the AP's MAC, to uniquely identify the AP)
+```bash
+addr1      : _Dot11MacField                      = ("'00:00:00:00:00:00'")
+addr2      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
+addr3      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
+```
+
+
+```python
+pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0, addr1="DEST-ADDR", addr2="OWN-ADDR", addr3="THE-BSSID")/Dot11Elt(ID="SSID", info="test")/Dot11Elt(ID="Supported Rates", info="???")/Dot11Elt() #etc...
+```
 ---
 
+
+
+this can be useful in scapy interpreter
 ```text
 scapy
 >>> explore()
+>>> ls(className)
+>>> ls(Dot11)
+>>> ls(Dot11Elt)
+>>> ...
 ```
