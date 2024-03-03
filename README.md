@@ -5,7 +5,8 @@ Learning the basics of 802.11 / messing with Scapy.
 ## notes
 
 Here are notes about 802.11  
-first of [this link](https://mum.mikrotik.com/presentations/MM19/presentation_7077_1560823308.pdf) seems like a good starting point.
+- first of [theses slides](https://mum.mikrotik.com/presentations/MM19/presentation_7077_1560823308.pdf) are a good starting point.
+- [another good starting point](https://howiwifi.com/2020/07/13/802-11-frame-types-and-formats/)
 
 ### flow
 - the client sends a __probe__ request
@@ -30,7 +31,8 @@ Every 100ms, an access point sends a broadcast packet containing the following i
 
 ### Directed Probe Request
 
-Instead of relying on passive scanning (aka beacons), a host can sends a "probe" packet, containing the SSID it is looking for. If the access point receives the packet, it answers with a probe response.
+Instead of relying on passive scanning (aka beacons), a host can sends a "probe" packet, containing the SSID it is looking for.  
+If the access point receives the packet, it answers with a probe response.
 
 ### Authentication
 
@@ -58,64 +60,155 @@ the piece of code I have in mind will be suited to target mobile hotposts.
 
 
 ### scapy packets
-```text
->>> explore()
->>> explore()
-Packets contained in scapy.layers.dot11:
-Class                           |Name                                
---------------------------------|------------------------------------
-AKMSuite                        |AKM suite                           
-Dot11                           |802.11                              
-Dot11ATIM                       |802.11 ATIM                         
-Dot11Ack                        |802.11 Ack packet                   
-Dot11AssoReq                    |802.11 Association Request          
-Dot11AssoResp                   |802.11 Association Response         
-Dot11Auth                       |802.11 Authentication               
-Dot11Beacon                     |802.11 Beacon                       
-Dot11CCMP                       |802.11 CCMP packet                  
-Dot11Deauth                     |802.11 Deauthentication             
-Dot11Disas                      |802.11 Disassociation               
-Dot11Elt                        |802.11 Information Element          
-Dot11EltCountry                 |802.11 Country                      
-Dot11EltCountryConstraintTriplet|802.11 Country Constraint Triplet   
-Dot11EltDSSSet                  |802.11 DSSS Parameter Set           
-Dot11EltERP                     |802.11 ERP                          
-Dot11EltHTCapabilities          |802.11 HT Capabilities              
-Dot11EltMicrosoftWPA            |802.11 Microsoft WPA                
-Dot11EltRSN                     |802.11 RSN information              
-Dot11EltRates                   |802.11 Rates                        
-Dot11EltVendorSpecific          |802.11 Vendor Specific              
-Dot11Encrypted                  |802.11 Encrypted (unknown algorithm)
-Dot11FCS                        |802.11-FCS                          
-Dot11ProbeReq                   |802.11 Probe Request                
-Dot11ProbeResp                  |802.11 Probe Response               
-Dot11QoS                        |802.11 QoS                          
-Dot11ReassoReq                  |802.11 Reassociation Request        
-Dot11ReassoResp                 |802.11 Reassociation Response       
-Dot11TKIP                       |802.11 TKIP packet                  
-Dot11WEP                        |802.11 WEP packet                   
-PMKIDListPacket                 |PMKIDs                              
-PrismHeader                     |Prism header                        
-RSNCipherSuite                  |Cipher suite                        
-RadioTap                        |RadioTap                            
-RadioTapExtendedPresenceMask    |RadioTap Extended presence mask     
-RadioTapTLV                     |                                    
->>> explore()
-Packets contained in scapy.layers.dot15d4:
-Class                     |Name                                        
---------------------------|--------------------------------------------
-Dot15d4                   |802.15.4                                    
-Dot15d4Ack                |802.15.4 Ack                                
-Dot15d4AuxSecurityHeader  |802.15.4 Auxiliary Security Header          
-Dot15d4Beacon             |802.15.4 Beacon                             
-Dot15d4Cmd                |802.15.4 Command                            
-Dot15d4CmdAssocReq        |802.15.4 Association Request Payload        
-Dot15d4CmdAssocResp       |802.15.4 Association Response Payload       
-Dot15d4CmdCoordRealign    |802.15.4 Coordinator Realign Command        
-Dot15d4CmdCoordRealignPage|802.15.4 Coordinator Realign Page           
-Dot15d4CmdDisassociation  |802.15.4 Disassociation Notification Payload
-Dot15d4CmdGTSReq          |802.15.4 GTS request command                
-Dot15d4Data               |802.15.4 Data                               
-Dot15d4FCS                |802.15.4 - FCS                              
+
+My first goal is to connect to a mobile hotpost (4 way handshake), in order to get familiar with scapy.
+
+Scapy does not give much details in its documentation concerning 802.11 frames.  
+lets dig in [the code](https://github.com/secdev/scapy/blob/master/scapy/layers/dot11.py)
+
+packets must be encapsulated in a `RadioTap` header to send data over the wi-fi
+```bash
+pkt = RadioTap()
+```
+
+you can create a 802.11 frame using the `Dot11` binding
+```bash
+pkt = RadioTap()/Dot11()
+```
+
+Apparently a 802.11 frame contains Information Elements (IE).  
+Scapy represent theses parts of frame like so
+```bash
+class Dot11Elt(Packet):
+    """
+    A Generic 802.11 Element
+    """
+    __slots__ = ["info"]
+    name = "802.11 Information Element"
+    fields_desc = [ByteEnumField("ID", 0, _dot11_id_enum),
+                   FieldLenField("len", None, "info", "B"),
+                   StrLenField("info", "", length_from=lambda x: x.len,
+                               max_length=255)]
+```
+Somehow [the IPXE documentation](https://dox.ipxe.org/group__ieee80211__ie.html#details) makes it clear.
+
+we could complete our frame like so
+```python
+pkt = RadioTap()/Dot11()/Dot11Elt()/Dot11Elt()/Dot11Elt() #etc...
+```
+
+Now we need to figure out what values can be set in theses Dot11 & Dot11Elt "objects"
+we can use `ls()` to see the 802.11 attributes which can be set
+```bash
+#in a shell
+scapy
+>>> ls(Dot11)
+subtype    : BitMultiEnumField                   = ('0')
+type       : BitEnumField                        = ('0')
+proto      : BitField  (2 bits)                  = ('0')
+cfe        : BitEnumField (Cond)                 = ('0')
+FCfield    : MultipleTypeField (FlagsField, FlagsField) = ('<Flag 0 ()>')
+ID         : ShortField                          = ('0')
+addr1      : _Dot11MacField                      = ("'00:00:00:00:00:00'")
+addr2      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
+addr3      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
+SC         : LEShortField (Cond)                 = ('0')
+addr4      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
 >>> 
+```
+
+types and subtypes can be found [here](https://en.wikipedia.org/wiki/802.11_frame_types)
+
+here we want to establish that four-way handshake, Wikipedia says:
+> type:0b0000 	Management 	subtype:0b0100 	=> Probe Request 
+```python
+pkt = RadioTap()/Dot11(subtype=4, type=0)/Dot11Elt()/Dot11Elt()/Dot11Elt() #etc...
+```
+also about the Protocol version subfield (`proto` attribute in Scapy)
+> The two-bit protocol version subfield is set to 0 for WLAN (PV0) and 1 for IEEE 802.11ah (PV1). 
+so we stick to `0`.
+```python
+pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0)/Dot11Elt()/Dot11Elt()/Dot11Elt() #etc...
+```
+
+sadly i don't understand a single thing about the `cfe` attribute
+
+`FCfield` reffers to the Frame control field:
+- a schema can be found [on this page](https://dalewifisec.wordpress.com/2014/05/17/the-to-ds-and-from-ds-fields/)
+- [a resource](https://networkengineering.stackexchange.com/questions/33041/802-11-how-do-i-find-out-if-packet-is-encrypted-with-wep-or-wpa) to investiguate
+
+from what we read [here](https://mum.mikrotik.com/presentations/MM19/presentation_7077_1560823308.pdf) a probe request contains the SSID and bit rates
+
+I had to dig into Scapy to find the existing IDs... see [here](https://github.com/secdev/scapy/blob/master/scapy/layers/dot11.py#L938) , line 938
+
+```python
+#############
+# 802.11 IE #
+#############
+
+# 802.11-2016 - 9.4.2
+
+_dot11_info_elts_ids = {
+    0: "SSID",
+    1: "Supported Rates",
+    2: "FHset",
+    3: "DSSS Set",
+    4: "CF Set",
+    5: "TIM",
+    6: "IBSS Set",
+    7: "Country",
+    10: "Request",
+    11: "BSS Load",
+    12: "EDCA Set",
+    13: "TSPEC",
+    14: "TCLAS",
+    15: "Schedule",
+    16: "Challenge text",
+    32: "Power Constraint",
+    33: "Power Capability",
+    36: "Supported Channels",
+    37: "Channel Switch Announcement",
+    42: "ERP",
+    45: "HT Capabilities",
+    46: "QoS Capability",
+    48: "RSN",
+    50: "Extended Supported Rates",
+    52: "Neighbor Report",
+    61: "HT Operation",
+    74: "Overlapping BSS Scan Parameters",
+    107: "Interworking",
+    127: "Extended Capabilities",
+    191: "VHT Capabilities",
+    192: "VHT Operation",
+    221: "Vendor Specific"
+}
+
+# Backward compatibility
+_dot11_elt_deprecated_names = {
+    "Rates": 1,
+    "DSset": 3,
+    "CFset": 4,
+    "IBSSset": 6,
+    "challenge": 16,
+    "PowerCapability": 33,
+    "Channels": 36,
+    "ERPinfo": 42,
+    "HTinfo": 45,
+    "RSNinfo": 48,
+    "ESRates": 50,
+    "ExtendendCapatibilities": 127,
+    "VHTCapabilities": 191,
+    "Vendor": 221,
+}
+```
+```python
+# self.rates = "\x03\x12\x96\x18\x24\x30\x48\x60"  pasted
+pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0)/Dot11Elt(ID="SSID", info="test")/Dot11Elt(ID="Supported Rates", info="???")/Dot11Elt() #etc...
+```
+
+---
+
+```text
+scapy
+>>> explore()
 ```
