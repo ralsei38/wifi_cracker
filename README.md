@@ -225,9 +225,10 @@ addr3      : _Dot11MacField (Cond)               = ("'00:00:00:00:00:00'")
 pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0, addr1="DEST-ADDR", addr2="OWN-ADDR", addr3="THE-BSSID")/Dot11Elt(ID="SSID", info="test")/Dot11Elt(ID="Supported Rates", info="???")/Dot11Elt() #etc...
 ```
 
+- find out how to find the BSSID of an AP, to fill up the `Dot11` frame
 - find out how to 4 way handshake own AP
-- try to authenticate to own AP
-- try to associate to own AP
+    - try to authenticate to own AP
+    - try to associate to own AP
 - try to deauthenticate to own AP (will be useful to deauth another user and listen the four-way handshake)
 
 From there we can use beacons (BLACKLIST INSTITUTIONAL AND GOV APs)  
@@ -251,3 +252,9 @@ scapy
 >>> ls(Dot11Elt)
 >>> ...
 ```
+
+The main problem is that shared access point are used with weak passwords, simply because sharing a 123 character long string to someone for them to connect to your SAP is far from practical...
+
+A solution could be to use a simple QR code application that contains your strong PSK.
+
+This way the user (client) can scan it, copy the key and paste it in their configuration.
