@@ -260,8 +260,8 @@ A solution could be to use a simple QR code application that contains your stron
 This way the user (client) can scan it, copy the key and paste it in their configuration.
 
 ### note
-- monitor mode must be enabled on the WNIC, to sniff packets withotu aving to associate with an AP.
+- monitor mode must be enabled on the WNIC, to sniff packets without having to associate with an AP.
 - promiscuous mode allows to sniff packets but you need to be connected to the AP !
-
+- managed mode, no sniffing.
 
 see the script to switch back & to monitor mode.
