@@ -1,11 +1,15 @@
 from scapy.all import Dot11,Dot11Beacon,Dot11Elt,RadioTap,sendp,hexdump, sr, sniff
-import pdb
 AP_MAC = "ff:ee:ff:ff:ff:ff"
 client_MAC = "" #empty to default on real one
 BSSID = "" #empty to default on real one
 
 # listen for Beacon frames
-pkts = sniff(filter="type mgt subtype beacon", iface="wlp0s20f3", count=2)
+pkts = sniff(filter="type mgt", iface="wlp0s20f3", count=20)
+SSIDs = set([pkt.info for pkt in pkts])
+print("AP list:")
+for SSID in SSIDs:
+    print(SSID)
+
 # SSIDS = 
 #based on SSIds see white / blaclist and try deauth attack one by one
 # dot11_frame = Dot11(subtype=8, type=0, proto=0, addr1='ff:ff:ff:ff:ff:ff',

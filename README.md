@@ -210,8 +210,8 @@ pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0)/Dot11Elt(ID="SSID", info="tes
 Here it is not clear which address is which (client, AP, a 3rd addr ??)
 looked up "802.11 field", apparently the order is the following:
 
-- addr1 => DA
-- addr2 => SA
+- addr1 => DestAddr
+- addr2 => SourceAddr
 - addr3 => BSS ID (!= SSID, BSSID is an ADDR calculated using the AP's MAC, to uniquely identify the AP)
 ```bash
 addr1      : _Dot11MacField                      = ("'00:00:00:00:00:00'")
@@ -234,12 +234,46 @@ pkt = RadioTap()/Dot11(subtype=4, type=0, proto=0, addr1="DEST-ADDR", addr2="OWN
 From there we can use beacons (BLACKLIST INSTITUTIONAL AND GOV APs)  
 Any way to target mobile hotspot only ?
 
-- find out how to scan nearby AP using beacons
-- find connected hosts to the IP by sniffing
-- deauth one of the client
-- listen to the four-way handshake
-- crack the key using dictionnaries and/or bruteforce
 
+### code
+** note**  
+Now we should have what it takes to work on the code.
+
+Here we sniff 20 Beacon frames on our wifi interface
+```python
+iface="wlp0s20f3"
+pkts = sniff(filter="type mgt subtype beacon", iface=iface, count=20)
+```
+
+Output
+```txt
+AP list:
+    b'eduroam'
+    b'PlanetCampus'
+    b'PlanetCampus - Prive 014752'
+    b'Redmi Note 11'
+```
+
+Now we need to find a connected user  
+we could sniff packets and filter the one having as destination the targeted AP.
+From Scapy docstrings
+> :param filter:   provide a BPF filter
+IBM documentation about BPF [here](https://www.ibm.com/docs/en/qsip/7.4?topic=queries-berkeley-packet-filters)
+
+```python
+targeted_AP=""
+pkts = sniff(filter=f"dst host {targeted_AP}", iface="wlp0s20f3", count=100)
+```
+
+Now we need to deauthenticate a user
+```python
+```
+**some soft AP shared via tethering are not sending frames ??! Am I missing out on something ?**
+
+- [ ] find connected hosts to the IP by sniffing
+- [ ] deauth one of the client
+- [ ] listen to the four-way handshake
+- [ ] crack the key using dictionnaries and/or bruteforce
 
 ---
 
