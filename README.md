@@ -1,5 +1,5 @@
 # wifi_cracker
-Learning the basics of 802.11 / messing with Scapy.
+Learning the basics of 802.11 / messing with Scapy.  
 **Will probably be ready in a week or two...**
 ## notes
 
