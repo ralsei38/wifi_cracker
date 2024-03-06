@@ -21,9 +21,8 @@ Here are notes about 802.11
 
 ### Beacon
 
-Beacons are used by hosts to detect available access points.
-
-Every 100ms, an access point sends a broadcast packet containing the following information:
+Beacons are used by hosts to detect available access points.  
+Every 100ms, an access point sends a broadcast packet containing the following information :
 
 - its SSID
 - The security protocols it supports (e.g WPA-2)
@@ -254,21 +253,63 @@ AP list:
     b'Redmi Note 11'
 ```
 
-Now we need to find a connected user  
+<!-- Now we need to find a connected user  
 we could sniff packets and filter the one having as destination the targeted AP.
 From Scapy docstrings
 > :param filter:   provide a BPF filter
-IBM documentation about BPF [here](https://www.ibm.com/docs/en/qsip/7.4?topic=queries-berkeley-packet-filters)
+IBM documentation about BPF [here](https://www.ibm.com/docs/en/qsip/7.4?topic=queries-berkeley-packet-filters) -->
 
+Now we want to connect to an AP.  
+[This documentation](https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/) along with theses classes definition where enough to build an authentication packet
 ```python
-targeted_AP=""
-pkts = sniff(filter=f"dst host {targeted_AP}", iface="wlp0s20f3", count=100)
+# hardocing my MAC address goes brrr
+mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2="brrr brrr", addr3=target_AP.addr2)
+body_frame = Dot11Auth(algo=11, seqnum=1) #wrong algo on purpose, curious about the result
+pkt = RadioTap()/mac_header/body_frame
+result = srp1(pkt, iface="wlp0s20f3")
 ```
 
-Now we need to deauthenticate a user
-```python
+using `result.show()` here is the result
+```bash
+###[ 802.11-FCS ]### 
+     subtype   = Authentication
+     type      = Management
+     proto     = 0
+     FCfield   = 
+     ID        = 14849
+     addr1     = brrr brrr (RA=DA)
+     addr2     = 46:ca:d2:b9:15:b9 (TA=SA)
+     addr3     = 46:ca:d2:b9:15:b9 (BSSID/STA)
+     SC        = 48928
+     fcs       = 0xc5c2ab34
+###[ 802.11 Authentication ]### 
+        algo      = 11
+        seqnum    = 2
+        status    = algo-unsupported
 ```
-**some soft AP shared via tethering are not sending frames ??! Am I missing out on something ?**
+
+algo unsported, which makes sense:
+
+- 0 is meant to authentication without any added security layer
+- 1 is meant to authenticate using a Pre-Shared Key secured (WPAx)
+
+using `algo=0` returns the following even tho my mobile hotspot is configured to use WPA2 ?!!
+```txt
+##[ 802.11 Authentication ]### 
+        algo      = open
+        seqnum    = 2
+        status    = success
+```
+
+lets try to authenticate
+
+---
+
+
+!!! warning
+    Sometimes mobile hotspot are not detected,
+    somehow turning off then back on the interface fixes it...
+
 
 - [ ] find connected hosts to the IP by sniffing
 - [ ] deauth one of the client

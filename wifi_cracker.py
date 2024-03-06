@@ -1,18 +1,50 @@
-from scapy.all import Dot11,Dot11Beacon,Dot11Elt,RadioTap,sendp,hexdump, sr, sniff
+from scapy.all import Dot11,Dot11Beacon,Dot11Elt,Dot11Auth,Dot11AssoReq,RadioTap,sendp, srp1, sr, sniff, Ether
+import pdb
 AP_MAC = "ff:ee:ff:ff:ff:ff"
-client_MAC = "" #empty to default on real one
+own_MAC = "ff:ee:ff:ff:ff:ff"
 BSSID = "" #empty to default on real one
 
 # listen for Beacon frames
-pkts = sniff(filter="type mgt", iface="wlp0s20f3", count=20)
-SSIDs = set([pkt.info for pkt in pkts])
-print("AP list:")
-for SSID in SSIDs:
-    print(SSID)
+def list_AP() -> list:
+    """
+    returns a list of nearby APs
+    """
+    pkts = sniff(filter="type mgt subtype beacon", iface="wlp0s20f3", count=20)
+    APs = []
+    for pkt in pkts:
+        if pkt.info not in [AP.info for AP in APs]:
+            APs.append(pkt)
 
-# SSIDS = 
-#based on SSIds see white / blaclist and try deauth attack one by one
-# dot11_frame = Dot11(subtype=8, type=0, proto=0, addr1='ff:ff:ff:ff:ff:ff',
+    return APs
+
+APs = list_AP()
+target_AP = "" # "ggg" being my mobile hotspot 
+for AP in APs:
+    if AP.info == "ggg".encode():
+        target_AP = AP
+        break
+if target_AP =="":
+    print("target IP not found...")
+    exit
+
+# authentication phase https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/
+# not using Ether().src, it uses my ethernet mac... to lazy to search
+mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
+body_frame = Dot11Auth(algo=0, seqnum=1)
+pkt = RadioTap()/mac_header/body_frame
+result = srp1(pkt, iface="wlp0s20f3")
+result.show()
+
+
+# association phase
+mac_header = Dot11(subtype=0, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
+body_frame = Dot11AssoReq()
+pkt = RadioTap()/mac_header/body_frame
+result = srp1(pkt, iface="wlp0s20f3")
+result.show()
+
+# idk idc phase
+# dot11_frame = Dot11(subtype=11, type=0, proto=0, addr1='ff:ff:ff:ff:ff:ff',
 # addr2='22:22:22:22:22:22', addr3='33:33:33:33:33:33')
 # beacon_frame = Dot11Beacon()
 # pkt = RadioTap()/dot11_frame/beacon_frame
