@@ -339,3 +339,10 @@ This way the user (client) can scan it, copy the key and paste it in their confi
 - managed mode, no sniffing.
 
 see the script to switch back & to monitor mode.
+
+## TO DO
+- [x] use beacon to enumerate nearby APs
+- [x] authenticate to my own 4g mobile hotspot using Open System authenticate (find out why this returns a success code, even tho i set WPA2 on my hotspot)
+- [ ] authenticate to my own 4g mobile hotspot using WPA2 and a PSK (no bruteforce, as a regular user)
+- [ ] associate to my own 4g mobile hotspot using WPA2 and a PSK (no bruteforce, as a regular user)
+- [ ] what can we do from there ?
