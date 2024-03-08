@@ -25,23 +25,35 @@ for AP in APs:
         break
 if target_AP =="":
     print("target IP not found...")
-    exit
+    sys.exit()
 
-# authentication phase https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/
+# AUTHENTICATION PHASE-------
+# https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/
 # not using Ether().src, it uses my ethernet mac... to lazy to search
 mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
-body_frame = Dot11Auth(algo=0, seqnum=1)
+body_frame = Dot11Auth(algo=1, seqnum=1)
 pkt = RadioTap()/mac_header/body_frame
+print("AUTHENTICATION PHASE !!!")
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
+pdb.set_trace()
+if result.haslayer(Dot11Elt):
+    challenge_txt = r.getlayer(Dot11Elt).ID == 16 #challenge text ID
+    challenge_solved = process_challenge(challenge_txt)
+else:
+    sys.exit()
+# AUTHENTICATION PHASE-------
 
 
-# association phase
+
+# ASSOCIATION PHASE-------
+print("ASSOCIATION PHASE !!!")
 mac_header = Dot11(subtype=0, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
 body_frame = Dot11AssoReq()
 pkt = RadioTap()/mac_header/body_frame
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
+# ASSOCIATION PHASE-------
 
 # idk idc phase
 # dot11_frame = Dot11(subtype=11, type=0, proto=0, addr1='ff:ff:ff:ff:ff:ff',

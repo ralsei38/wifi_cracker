@@ -277,8 +277,8 @@ using `result.show()` here is the result
      FCfield   = 
      ID        = 14849
      addr1     = brrr brrr (RA=DA)
-     addr2     = 46:ca:d2:b9:15:b9 (TA=SA)
-     addr3     = 46:ca:d2:b9:15:b9 (BSSID/STA)
+     addr2     = heh (TA=SA)
+     addr3     = heh (BSSID/STA)
      SC        = 48928
      fcs       = 0xc5c2ab34
 ###[ 802.11 Authentication ]### 
@@ -300,8 +300,121 @@ using `algo=0` returns the following even tho my mobile hotspot is configured to
         status    = success
 ```
 
-lets try to authenticate
+lets try to authenticate for real this time, we'll see later about that Open System authentication
+```python
+# AUTHENTICATION PHASE-------
+# https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/
+# not using Ether().src, it uses my ethernet mac... to lazy to search
+mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
+body_frame = Dot11Auth(algo=1, seqnum=1)
+pkt = RadioTap()/mac_header/body_frame
+print("AUTHENTICATION PHASE !!!")
+result = srp1(pkt, iface="wlp0s20f3")
+result.show()
+# AUTHENTICATION PHASE-------
+```
 
+which returns
+```text
+Begin emission:
+Finished sending 1 packets.
+.......................................*
+Received 40 packets, got 1 answers, remaining 0 packets
+###[ RadioTap ]### 
+blabla...
+###[ 802.11-FCS ]### 
+     subtype   = Authentication
+     type      = Management
+     proto     = 0
+     FCfield   = 
+     ID        = 14849
+     addr1     = heh (RA=DA)
+     addr2     = heh(TA=SA)
+     addr3     = heh (BSSID/STA)
+     SC        = 37568
+     fcs       = 0x296dc947
+###[ 802.11 Authentication ]### 
+        algo      = sharedkey
+        seqnum    = 2
+        status    = success
+###[ 802.11 Information Element ]### 
+           ID        = Challenge text
+           len       = 128
+           info      = "\x1f\\xdcD'J%\\xc5\\xd4U\x14N!d\\xcdΓ\\x91\\xb0\x17?ɶ\\xe2dw^\\xf2\\xc7\\xc4\\xdfG\\x82$/\\xf9\\xc0*ڕ6\\xaa\\x97\\xd1dsZ\\x8d\x0fz\\xb3C7Q\\xab\\x80B\\xd2\x1f\\xfdU\\xfeo\\xf5D\x7f\\xb4\\I\\xd8\x14\x1d\\x96&?(\x1d\x1d\x16L\\xf2j.e\\x91\\xf2\\x84\\x86\x00\\xb4\\xb0\\x9e*\\xb3Q3@\\xc8\x11\\xaeR\\xedܷ\x15\\x892\\xf6P:\\xfa\\x9em\\xaa\\x8d\\x88\\xd7bA5\\xd4q\\xc9\\xcf\n\\xc7\\xeez`"
+```
+
+I'm struggling finding good resources, all i know is that i have to encrypt this challenge text using the PSK and send it back to the AP to authenticate...
+
+using the `haslayer()` `getlayer()` we can check for the challenge text existence
+
+
+```python
+
+#############
+# 802.11 IE #
+#############
+
+# 802.11-2016 - 9.4.2
+
+_dot11_info_elts_ids = {
+    0: "SSID",
+    1: "Supported Rates",
+    2: "FHset",
+    3: "DSSS Set",
+    4: "CF Set",
+    5: "TIM",
+    6: "IBSS Set",
+    7: "Country",
+    10: "Request",
+    11: "BSS Load",
+    12: "EDCA Set",
+    13: "TSPEC",
+    14: "TCLAS",
+    15: "Schedule",
+    16: "Challenge text",
+    #etc...
+}
+```
+
+```python
+```
+
+```python
+_dot11_info_elts_ids = {
+    0: "SSID",
+    1: "Supported Rates",
+    2: "FHset",
+    3: "DSSS Set",
+    4: "CF Set",
+    5: "TIM",
+    6: "IBSS Set",
+    7: "Country",
+    10: "Request",
+    11: "BSS Load",
+    12: "EDCA Set",
+    13: "TSPEC",
+    14: "TCLAS",
+    15: "Schedule",
+    16: "Challenge text",
+    32: "Power Constraint",
+    33: "Power Capability",
+    36: "Supported Channels",
+    37: "Channel Switch Announcement",
+    42: "ERP",
+    45: "HT Capabilities",
+    46: "QoS Capability",
+    48: "RSN",
+    50: "Extended Supported Rates",
+    52: "Neighbor Report",
+    61: "HT Operation",
+    74: "Overlapping BSS Scan Parameters",
+    107: "Interworking",
+    127: "Extended Capabilities",
+    191: "VHT Capabilities",
+    192: "VHT Operation",
+    221: "Vendor Specific"
+}
+```
 ---
 
 
