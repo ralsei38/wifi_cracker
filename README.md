@@ -343,7 +343,33 @@ blabla...
            info      = "\x1f\\xdcD'J%\\xc5\\xd4U\x14N!d\\xcdΓ\\x91\\xb0\x17?ɶ\\xe2dw^\\xf2\\xc7\\xc4\\xdfG\\x82$/\\xf9\\xc0*ڕ6\\xaa\\x97\\xd1dsZ\\x8d\x0fz\\xb3C7Q\\xab\\x80B\\xd2\x1f\\xfdU\\xfeo\\xf5D\x7f\\xb4\\I\\xd8\x14\x1d\\x96&?(\x1d\x1d\x16L\\xf2j.e\\x91\\xf2\\x84\\x86\x00\\xb4\\xb0\\x9e*\\xb3Q3@\\xc8\x11\\xaeR\\xedܷ\x15\\x892\\xf6P:\\xfa\\x9em\\xaa\\x8d\\x88\\xd7bA5\\xd4q\\xc9\\xcf\n\\xc7\\xeez`"
 ```
 
-I'm struggling finding good resources, all i know is that i have to encrypt this challenge text using the PSK and send it back to the AP to authenticate...
+we received a challenge, I have no idea how the authentication process works, after some research:
+### Robust Security Network Authentication (RSNA)
+> some documentation [see here](https://techhub.hpe.com/eginfolib/networking/docs/routers/msrv7/cg/5200-3028_wlan_cg/content/466576912.htm)
+>  The initial authentication process is carried out either using a pre-shared key (PSK), or following an EAP exchange through 802.1X [doc](https://en.wikipedia.org/wiki/IEEE_802.11i-2004)
+> when using PSK, fist few packets are encrypted using it, then a Pairwise Master key is generated (derivated from the PSK) and used from there to encrypt content. Once the 4 way handshake occured, a Private Transiant Key is generated, and use to encrypt communications.
+- authentication standard for WLAN is called 802.1X
+- [Extensible Authentication Protocol (EAP)](https://www.ietf.org/rfc/rfc3748.txt)
+- Scapy supports eap [see eap.py](https://github.com/secdev/scapy/blob/master/scapy/layers/eap.py)
+- eap packet format [here](https://techhub.hpe.com/eginfolib/networking/docs/switches/5130ei/5200-3946_security_cg/content/485048061.htm)
+
+---
+
+## EAP
+[This video](https://youtu.be/bzWdE0Hc-jQ) is a good starting point.
+Here is a recap:
+
+- EAP is a transport protocol used to authenticate users over WLAN or LAN networks.
+- EAP is media-independent, it operates at the layer 2
+- EAP supports a variety of authentication protocols
+- before being authenticate, any packets relying on another transport protocol such as TCP will be dropped.
+
+**EAP only concerns WPA/WPA2-Enterprise which is more sophisticated != WPA/WPA2-PSK !!!**
+
+rip, back to the start
+
+---
+
 
 using the `haslayer()` `getlayer()` we can check for the challenge text existence
 
