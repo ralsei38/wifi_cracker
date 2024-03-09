@@ -367,13 +367,19 @@ Here is a recap:
 **EAP only concerns WPA/WPA2-Enterprise which is more sophisticated != WPA/WPA2-PSK !!!**
 
 rip, back to the start
+this may be of interest: https://cisco.goffinet.org/ccna/wlan/protocoles-securite-sans-fil-wpa-wpa2-wpa3:
+- table states that: WPA2 personnal + PSK  => TKIP security, itself using RC4 algorithm and rotates key regularly.
+- section 8. Four-Way Handshake
 
+seems a bit too much of a headache to work on an authentication using scapy for now...
+authentication itself seems harder than getting into an AP by attacking it...
+
+lets focus on deauth and dictionnary / bruteforce attack for now.
+If I'm still motivated after this, i'll work on the 4 way handshake =)
 ---
 
 
 using the `haslayer()` `getlayer()` we can check for the challenge text existence
-
-
 ```python
 
 #############
