@@ -355,6 +355,7 @@ Finding / Reading an RFC is pretty straight forward, but i could not find good o
 
 sources:
 - EEE 802.11i [here](https://fr.wikipedia.org/wiki/IEEE_802.11i)
+- [802.11i Overview (2005)](https://ieee802.org/16/liaison/docs/80211-05_0123r1.pdf)
 - [introduction-to-wpa-key-hierarchy](https://networklessons.com/cisco/ccnp-encor-350-401/introduction-to-wpa-key-hierarchy)
 - [EAPol](https://networklessons.com/cisco/ccnp-encor-350-401/eapol-extensible-authentication-protocol-over-lan)
 - https://www.wifi-professionals.com/2019/01/4-way-handshake
