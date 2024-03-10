@@ -371,10 +371,11 @@ PTK = PRF (PMK + Anonce + SNonce + Mac (AA)+ Mac (SA))
 - `MAC(SA)` mac address of the supplicant
 - `MAC(AA)` mac address of the authenticator
 - `PRF()` is a pseudo-random function which is applied to the whole
-- `PMK` the PSK in WPA2-PSK authentication
+- `MSK` the PSK is the first generated key when authenticating using PSK or 802.1X/EAP
+- `PMK` the PSK key is generated from the MSK key
+- `PTK` the PTK is the key used for encrpytion, it is generated using the PMK
 
-> Pairwise master is key generated from master session key (MSK). In case of WPA2/PSK when device authenticates with access point the PSK becomes PMK. [MSK](https://en.wikipedia.org/wiki/Master/Session)
-
+for multicast encryption, MSK -> GMK -> GTK is generate, kind of the same flow as for MSK ->  PMK ->  PTK
 
 ---
 
