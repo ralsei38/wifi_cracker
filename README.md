@@ -367,6 +367,15 @@ sources:
 
 **In both cases the transport protocol in use is EAP (Extensible Authentication Protocol)**
 
+this image contradicts this but ok ??? [here](https://mrncciew.files.wordpress.com/2014/08/cwsp-wep-8.png)
+I guess I'll focus on this instead, we can apparently craft an IElement, and assign a challenge
+```python
+_dot11_info_elts_ids = {
+    0: "SSID",
+    ...
+    16: "Challenge text",
+}
+```
 Once authenticated both the client and the access point know the **Pairwise Master Key** (description below).
 
 ```txt
