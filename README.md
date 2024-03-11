@@ -360,13 +360,20 @@ sources:
 - [EAPol](https://networklessons.com/cisco/ccnp-encor-350-401/eapol-extensible-authentication-protocol-over-lan)
 - https://www.wifi-professionals.com/2019/01/4-way-handshake
 
-A 4-way handhsake happens between:
-- a client called a supplicant
-- an AP called an authenticator
+802.11i security norm which define 3 types of authentication mechanism:
+- authentication using 802.1X and EOP (port based authentication)
+- Authentication using the AES algorithm
 
-To generate an encryption key, and encrypt communications.
+**In both cases the transport protocol in use is EAP (Extensible Authentication Protocol)**
 
-The Private Transient Key, is the "final key", used between a client & an AP to encrypt communication. This key different accros each communication.
+Once authenticated both the client and the access point know the **Pairwise Master Key** (description below).
+
+From there, a **4-way handhsake** happens between a client (supplicant) and an AP (authenticator).
+To generate a Private Transient Key, and encrypt communications using it.
+
+?The PMK is a temporary key?  
+!it is not used to encrypt coms !
+
 ```
 PTK = PRF (PMK + Anonce + SNonce + Mac (AA)+ Mac (SA))
 ```
@@ -396,6 +403,7 @@ for multicast encryption, MSK -> GMK -> GTK is generate, kind of the same flow a
 ---
 
 ## EAP
+
 [This video](https://youtu.be/bzWdE0Hc-jQ) is a good starting point.
 Here is a recap:
 
