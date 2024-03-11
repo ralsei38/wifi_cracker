@@ -358,6 +358,7 @@ sources:
 - [802.11i Overview (2005)](https://ieee802.org/16/liaison/docs/80211-05_0123r1.pdf)
 - [introduction-to-wpa-key-hierarchy](https://networklessons.com/cisco/ccnp-encor-350-401/introduction-to-wpa-key-hierarchy)
 - [EAPol](https://networklessons.com/cisco/ccnp-encor-350-401/eapol-extensible-authentication-protocol-over-lan)
+- [Extensible Authentication Protocol (EAP)](https://www.rfc-editor.org/rfc/rfc3748.html)
 - https://www.wifi-professionals.com/2019/01/4-way-handshake
 
 802.11i security norm which define 3 types of authentication mechanism:
