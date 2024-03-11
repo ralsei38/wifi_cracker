@@ -369,6 +369,67 @@ sources:
 
 Once authenticated both the client and the access point know the **Pairwise Master Key** (description below).
 
+```txt
+first authenticate and associate. After successful association, AP finally sends me EAP Request Identity packet.
+https://www.rfc-editor.org/rfc/rfc3748.html#section-4
+4.  EAP Packet Format
+
+   A summary of the EAP packet format is shown below.  The fields are
+   transmitted from left to right.
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     Code      |  Identifier   |            Length             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Data ...
+   +-+-+-+-+
+
+   Code
+
+      The Code field is one octet and identifies the Type of EAP packet.
+      EAP Codes are assigned as follows:
+
+         1       Request
+         2       Response
+         3       Success
+         4       Failure
+
+      Since EAP only defines Codes 1-4, EAP packets with other codes
+      MUST be silently discarded by both authenticators and peers.
+
+
+
+
+
+
+Aboba, et al.               Standards Track                    [Page 20]
+
+
+RFC 3748                          EAP                          June 2004
+
+
+   Identifier
+
+      The Identifier field is one octet and aids in matching Responses
+      with Requests.
+
+   Length
+
+      The Length field is two octets and indicates the length, in
+      octets, of the EAP packet including the Code, Identifier, Length,
+      and Data fields.  Octets outside the range of the Length field
+      should be treated as Data Link Layer padding and MUST be ignored
+      upon reception.  A message with the Length field set to a value
+      larger than the number of received octets MUST be silently
+      discarded.
+
+   Data
+
+      The Data field is zero or more octets.  The format of the Data
+      field is determined by the Code field.
+```
+
 From there, a **4-way handhsake** happens between a client (supplicant) and an AP (authenticator).
 To generate a Private Transient Key, and encrypt communications using it.
 
