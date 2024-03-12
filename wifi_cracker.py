@@ -1,5 +1,7 @@
-from scapy.all import Dot11,Dot11Beacon,Dot11Elt,Dot11Auth,Dot11AssoReq,RadioTap,sendp, srp1, sr, sniff, Ether
+from scapy.all import Dot11, Dot11Beacon, Dot11Elt, Dot11Auth, Dot11AssoReq, RadioTap, sendp, srp1, sr, sniff, Ether, EAP
 import pdb
+
+
 AP_MAC = "ff:ee:ff:ff:ff:ff"
 own_MAC = "ff:ee:ff:ff:ff:ff"
 BSSID = "" #empty to default on real one
@@ -28,8 +30,8 @@ if target_AP =="":
     sys.exit()
 
 # AUTHENTICATION PHASE-------
-# https://mrncciew.com/2014/10/10/802-11-mgmt-authentication-frame/
 # not using Ether().src, it uses my ethernet mac... to lazy to search
+# I have to first authenticate and associate. After successful association, AP finally sends an EAP Request Identity packet.
 mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
 body_frame = Dot11Auth(algo=1, seqnum=1)
 pkt = RadioTap()/mac_header/body_frame
@@ -54,6 +56,22 @@ pkt = RadioTap()/mac_header/body_frame
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
 # ASSOCIATION PHASE-------
+
+
+
+# EAP PHASE-------------
+# counts => each packet or only the one filtered ?
+eap_1 = sniffer(interface="wlp0s20p3", lfilter= lambda pkt:pkt if pkt.haslayer(EAP), count=1) 
+# EAP PHASE-------------
+
+
+
+
+
+
+
+
+
 
 # idk idc phase
 # dot11_frame = Dot11(subtype=11, type=0, proto=0, addr1='ff:ff:ff:ff:ff:ff',

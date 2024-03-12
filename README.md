@@ -1,6 +1,8 @@
 # wifi_cracker
+
 Learning the basics of 802.11 / messing with Scapy.  
 **Will probably be ready in a week or two...**
+
 ## notes
 
 Here are notes about 802.11  
@@ -495,8 +497,13 @@ authentication itself seems harder than getting into an AP by attacking it...
 
 lets focus on deauth and dictionnary / bruteforce attack for now.
 If I'm still motivated after this, i'll work on the 4 way handshake =)
----
 
+---
+```python
+# EAP PHASE-------------
+# counts => each packet or only the one filtered ?
+# EAP PHASE-------------
+```
 
 using the `haslayer()` `getlayer()` we can check for the challenge text existence
 ```python
@@ -598,6 +605,7 @@ A solution could be to use a simple QR code application that contains your stron
 This way the user (client) can scan it, copy the key and paste it in their configuration.
 
 ### note
+
 - promiscuous mode must be enabled on the WNIC, to sniff packets without having to associate with an AP.
 - monitor mode allows to sniff packets but you need to be connected to the AP !
 - managed mode, no sniffing.
