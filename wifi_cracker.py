@@ -1,4 +1,5 @@
 from scapy.all import Dot11, Dot11Beacon, Dot11Elt, Dot11Auth, Dot11AssoReq, RadioTap, sendp, srp1, sr, sniff, Ether, EAP
+import sys
 import pdb
 
 
@@ -11,7 +12,7 @@ def list_AP() -> list:
     """
     returns a list of nearby APs
     """
-    pkts = sniff(filter="type mgt subtype beacon", iface="wlp0s20f3", count=20)
+    pkts = sniff(filter="type mgt subtype beacon", iface="wlp0s20f3", count=50)
     APs = []
     for pkt in pkts:
         if pkt.info not in [AP.info for AP in APs]:
@@ -20,12 +21,19 @@ def list_AP() -> list:
     return APs
 
 APs = list_AP()
-target_AP = "" # "ggg" being my mobile hotspot 
 for AP in APs:
-    if AP.info == "ggg".encode():
+    print(AP.info)
+
+target_AP = input("AP:") # "ggg" being my mobile hotspot 
+if target_AP not in APs:
+    print("This AP cannot be targeted...")
+    print("exiting")
+    sys.exit()
+for AP in APs:
+    if AP.info == target_AP.encode():
         target_AP = AP
         break
-if target_AP =="":
+if target_AP == "":
     print("target IP not found...")
     sys.exit()
 
@@ -38,7 +46,7 @@ pkt = RadioTap()/mac_header/body_frame
 print("AUTHENTICATION PHASE !!!")
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
-if result.haslayer(Dot11Elt) and code = result.getlayer(Dot11Elt).status == 0:
+if result.haslayer(Dot11Elt) and result.getlayer(Dot11Elt).status == 0:
     print("Open system authentication: Success")
 else:
     print("Open system authentication: Failure")
@@ -62,7 +70,7 @@ result.show()
 
 # EAP PHASE-------------
 # counts => each packet or only the one filtered ? (sniffing post to the association phase may be safer)
-eap_1 = sniffer(interface="wlp0s20p3", lfilter= lambda pkt:pkt if pkt.haslayer(EAP), count=1) 
+eap_1 = sniffer(interface="wlp0s20f3", lfilter = lambda pkt: pkt.haslayer(EAP), count=1) 
 # EAP PHASE-------------
 
 
