@@ -33,16 +33,17 @@ if target_AP =="":
 # not using Ether().src, it uses my ethernet mac... to lazy to search
 # I have to first authenticate and associate. After successful association, AP finally sends an EAP Request Identity packet.
 mac_header = Dot11(subtype=11, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
-body_frame = Dot11Auth(algo=1, seqnum=1)
+body_frame = Dot11Auth(algo=0, seqnum=1) #Open System authentication, then use EAP to identify later on...
 pkt = RadioTap()/mac_header/body_frame
 print("AUTHENTICATION PHASE !!!")
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
-pdb.set_trace()
-if result.haslayer(Dot11Elt):
-    challenge_txt = r.getlayer(Dot11Elt).ID == 16 #challenge text ID
-    challenge_solved = process_challenge(challenge_txt)
+if result.haslayer(Dot11Elt) and code = result.getlayer(Dot11Elt).status == 0:
+    print("Open system authentication: Success")
 else:
+    print("Open system authentication: Failure")
+    print("wrong status code ?")
+    print("exiting...")
     sys.exit()
 # AUTHENTICATION PHASE-------
 
@@ -60,7 +61,7 @@ result.show()
 
 
 # EAP PHASE-------------
-# counts => each packet or only the one filtered ?
+# counts => each packet or only the one filtered ? (sniffing post to the association phase may be safer)
 eap_1 = sniffer(interface="wlp0s20p3", lfilter= lambda pkt:pkt if pkt.haslayer(EAP), count=1) 
 # EAP PHASE-------------
 
