@@ -1,24 +1,43 @@
 # wifi_cracker
 
-Learning the basics of 802.11 / messing with Scapy.  
+Learning the basics of 802.11i  and messing with Scapy.  
 **Will probably be ready in a week or two...**
 
 ## notes
+resources:
 
-Here are notes about 802.11  
 - first of [theses slides](https://mum.mikrotik.com/presentations/MM19/presentation_7077_1560823308.pdf) are a good starting point.
 - [another good starting point](https://howiwifi.com/2020/07/13/802-11-frame-types-and-formats/)
 
-### flow
-- the client sends a __probe__ request
-- the server sends back a __probe__ response
 
+important:
+
+- WPA are not standards, but certifications
+- WPA2 implements __the mandatory elements of IEEE 802.11i__. In particular, it includes support for __CCMP__, an __AES-based__ encryption mode.
+- 802.1X / EAP is used on WPA2-Entreprise "certified" networks
+- EAP and PSK authentication is used on WPA2-personal "certified" networks
+
+### WPA2 steps
+#### discovery
+Either passive or active approach is used
+- the client receives a beacon frame (passive)
+- the client sends a __probe__ request (active)
+- the server sends back a __probe__ response (active)
+
+#### authentication
+The authentication steps is here for the supplicant and the authenticator to define communications rules  
+(e.g rates, algorithm, etc...)
 - the client sends an __authentication__ request
 - the server sends an __authentication__ response
+
+#### association
 
 - the client sends an __association__ request
 - the client sends an __association__ response
 
+#### 4 way-handshake
+> The 4-Way Handshake utilizes an exchange of four EAPOL-Key frames between the client and access point. In a PSK network, the exchange of frames occurs after the Open System Authentication and Association. In an 802.1X network, the 4-Way Handshake occurs after EAP authentication.
+TODO: insight on how the handshake packets can be crafted from a theorical standpoint, then present scapy bindings here.
 
 ### Beacon
 
