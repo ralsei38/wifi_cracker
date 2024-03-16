@@ -60,7 +60,7 @@ else:
 # ASSOCIATION PHASE-------
 print("ASSOCIATION PHASE !!!")
 async_sniffer = AsyncSniffer(
-    lfilter=lambda pkt: pkt.haslayer(EAP),
+    lfilter=lambda pkt: pkt.haslayer(EAPOL),
     iface="wlp0s20f3",
     count=1
 )
@@ -70,14 +70,13 @@ body_frame = Dot11AssoReq()
 pkt = RadioTap()/mac_header/body_frame
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
-async_sniffer.join()
 # ASSOCIATION PHASE-------
 
 # EAP PHASE-------------
 # counts => each packet or only the one filtered ? (sniffing post to the association phase may be safer)
 
 print("4 WAY HANDSHAKE !!!")
-eap_1 = sniff(iface="wlp0s20f3", lfilter = lambda pkt: pkt.haslayer(EAPOL_KEY), count=1) 
+async_sniffer.join()
 # EAP PHASE-------------
 
 
