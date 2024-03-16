@@ -1,10 +1,12 @@
 from scapy.all import Dot11, Dot11Beacon, Dot11Elt, Dot11Auth, Dot11AssoReq, RadioTap, sendp, srp1, sr, sniff, Ether, EAP
+from scapy.all import AsyncSniffer
+from scapy.layers.eap import EAPOL
 import sys
 import pdb
 
 
 AP_MAC = "ff:ee:ff:ff:ff:ff"
-own_MAC = "ff:ee:ff:ff:ff:ff"
+own_MAC = "e0:2e:0b:98:d2:2b"
 BSSID = "" #empty to default on real one
 
 # listen for Beacon frames
@@ -23,15 +25,15 @@ def list_AP() -> list:
 APs = list_AP()
 for AP in APs:
     print(AP.info)
-
-target_AP = input("AP:") # "ggg" being my mobile hotspot 
-if target_AP not in APs:
+target_AP = input("AP:") # "ggg" being my mobile hotspot
+if target_AP.encode() not in [ AP.info for AP in APs]:
     print("This AP cannot be targeted...")
     print("exiting")
     sys.exit()
 for AP in APs:
     if AP.info == target_AP.encode():
         target_AP = AP
+        print("AP is available, start of auth phase")
         break
 if target_AP == "":
     print("target IP not found...")
@@ -45,8 +47,8 @@ body_frame = Dot11Auth(algo=0, seqnum=1) #Open System authentication, then use E
 pkt = RadioTap()/mac_header/body_frame
 print("AUTHENTICATION PHASE !!!")
 result = srp1(pkt, iface="wlp0s20f3")
-result.show()
-if result.haslayer(Dot11Elt) and result.getlayer(Dot11Elt).status == 0:
+# result.show()
+if result.haslayer(Dot11Auth) and result.getlayer(Dot11Auth).status == 0:
     print("Open system authentication: Success")
 else:
     print("Open system authentication: Failure")
@@ -55,27 +57,28 @@ else:
     sys.exit()
 # AUTHENTICATION PHASE-------
 
-
-
 # ASSOCIATION PHASE-------
 print("ASSOCIATION PHASE !!!")
+async_sniffer = AsyncSniffer(
+    lfilter=lambda pkt: pkt.haslayer(EAP),
+    iface="wlp0s20f3",
+    count=1
+)
+async_sniffer.start()
 mac_header = Dot11(subtype=0, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
 body_frame = Dot11AssoReq()
 pkt = RadioTap()/mac_header/body_frame
 result = srp1(pkt, iface="wlp0s20f3")
 result.show()
+async_sniffer.join()
 # ASSOCIATION PHASE-------
-
-
 
 # EAP PHASE-------------
 # counts => each packet or only the one filtered ? (sniffing post to the association phase may be safer)
-eap_1 = sniffer(interface="wlp0s20f3", lfilter = lambda pkt: pkt.haslayer(EAP), count=1) 
+
+print("4 WAY HANDSHAKE !!!")
+eap_1 = sniff(iface="wlp0s20f3", lfilter = lambda pkt: pkt.haslayer(EAPOL_KEY), count=1) 
 # EAP PHASE-------------
-
-
-
-
 
 
 
