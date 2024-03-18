@@ -6,7 +6,7 @@ import pdb
 
 
 AP_MAC = "ff:ee:ff:ff:ff:ff"
-own_MAC = "e0:2e:0b:98:d2:2b"
+own_MAC = "ff:ee:ff:ff:ff:ff"
 BSSID = "" #empty to default on real one
 
 # listen for Beacon frames
@@ -59,12 +59,6 @@ else:
 
 # ASSOCIATION PHASE-------
 print("ASSOCIATION PHASE !!!")
-async_sniffer = AsyncSniffer(
-    lfilter=lambda pkt: pkt.haslayer(EAPOL),
-    iface="wlp0s20f3",
-    count=1
-)
-async_sniffer.start()
 mac_header = Dot11(subtype=0, type=0, proto=0, addr1=target_AP.addr2, addr2=own_MAC, addr3=target_AP.addr2)
 body_frame = Dot11AssoReq()
 pkt = RadioTap()/mac_header/body_frame
@@ -73,10 +67,13 @@ result.show()
 # ASSOCIATION PHASE-------
 
 # EAP PHASE-------------
+# Voir documentation 5.6.3 second part, EAPol start FROM THE CLIENT
+# see class class WPA_key(Packet): which should be name EAPOL_KEY but here we are...
+
+pkt = RadioTap()/Dot11()/Eap()
 # counts => each packet or only the one filtered ? (sniffing post to the association phase may be safer)
 
 print("4 WAY HANDSHAKE !!!")
-async_sniffer.join()
 # EAP PHASE-------------
 
 
