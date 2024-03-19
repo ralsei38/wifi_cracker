@@ -20,5 +20,5 @@ def association(own_MAC, AP_beacon, iface):
         nb_akm_suites=1,    
         akm_suites=AKMSuite(suite='PSK'))
     pkt = RadioTap()/dot11_header/dott11_element_assoreq/dott11_element_ssid/dott11_element_RSN
-    result = srp1(pkt, iface="wlp0s20f3")
+    result = srp1(pkt, iface=iface)
 # ASSOCIATION PHASE-------
