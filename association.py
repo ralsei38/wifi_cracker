@@ -14,7 +14,7 @@ def association(own_MAC, AP_beacon, iface):
         ID=48,    
         len=20,    
         version=1,    
-        group_cipher_suite=RSNCipherSuite(cipher='TKIP'),    
+        group_cipher_suite=RSNCipherSuite(cipher='CCMP-128'),    
         nb_pairwise_cipher_suites=1,    
         pairwise_cipher_suites=RSNCipherSuite(cipher='CCMP-128'),    
         nb_akm_suites=1,    
